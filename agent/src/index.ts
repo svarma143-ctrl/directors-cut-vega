@@ -73,11 +73,18 @@ async function createAgent(): Promise<{ agent: Agent | null; mode: string; reaso
   }
 
   // Default: Bedrock.
+  //
+  // The default model is Amazon Nova Lite rather than a third-party model.
+  // Amazon's own models do not require an AWS Marketplace subscription, and
+  // third-party models on a brand-new account frequently fail with
+  // "AccessDeniedException: API Model access is denied by Marketplace
+  // subscription". For a text-only job that has to answer in a couple of
+  // seconds, Nova Lite is also the right price point.
   try {
     const agent = new Agent({
       model: new BedrockModel({
         region: process.env.AWS_REGION ?? 'us-east-1',
-        modelId: process.env.BEDROCK_MODEL_ID ?? 'global.anthropic.claude-haiku-4-5-20251001-v1:0',
+        modelId: process.env.BEDROCK_MODEL_ID ?? 'us.amazon.nova-lite-v1:0',
       }),
       systemPrompt: SYSTEM_PROMPT,
     });
