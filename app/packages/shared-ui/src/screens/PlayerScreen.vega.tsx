@@ -64,6 +64,8 @@ export default function PlayerScreen() {
   // Director's Cut: the AI companion panel.
   const [companionVisible, setCompanionVisible] = useState<boolean>(true);
   const [revealedQuestionId, setRevealedQuestionId] = useState<string | null>(null);
+  // The question the remote is currently pointing at, if any.
+  const [focusedQuestionId, setFocusedQuestionId] = useState<string | null>(null);
 
   const {
     response: directorResponse,
@@ -78,18 +80,34 @@ export default function PlayerScreen() {
     active: companionVisible && isFocused,
   });
 
+  // Revealing is idempotent rather than a toggle.
+  //
+  // The OK button reaches the companion twice on Vega: once through the
+  // spatial navigation library's own selection handling, and once through
+  // the screen's remote handler. A toggle would flip on and straight back
+  // off, so the answer would never appear.
   const handleSelectQuestion = useCallback((question: TriviaQuestion) => {
-    setRevealedQuestionId((current) =>
-      current === question.id ? null : question.id,
-    );
+    setRevealedQuestionId(question.id);
   }, []);
 
-  // A new set of questions invalidates the revealed answer.
+  // Keep a revealed answer only for as long as its question is still on
+  // screen.
+  //
+  // The companion refreshes its questions whenever new dialogue has been
+  // watched, and the question set changes with it. Clearing the reveal on
+  // every refresh would wipe the answer the moment it was revealed, so we
+  // only clear it when the revealed question is genuinely gone.
   const directorResponseId =
     directorResponse?.questions.map((q) => q.id).join(',') ?? '';
   useEffect(() => {
-    setRevealedQuestionId(null);
-  }, [directorResponseId]);
+    setRevealedQuestionId((current) => {
+      if (!current) return current;
+      const stillOnScreen = directorResponse?.questions.some(
+        (q) => q.id === current,
+      );
+      return stillOnScreen ? current : null;
+    });
+  }, [directorResponseId, directorResponse]);
 
   // Refs
   const videoRef = useRef<W3CVideoPlayer | null>(null);
@@ -264,6 +282,25 @@ export default function PlayerScreen() {
           case SupportedKeys.PlayPause:
             togglePausePlay();
             break;
+          case SupportedKeys.Enter:
+            // OK on a quiz question reveals its answer.
+            //
+            // The video's transport controls only exist while they are
+            // visible, so when they are hidden the companion owns the OK
+            // button. The panel reports which question the remote points at;
+            // if the focus has not settled on one yet, we reveal the first
+            // question that has not been revealed yet.
+            if (!controlsVisible && directorResponse?.questions.length) {
+              const questions = directorResponse.questions;
+              const question =
+                questions.find((q) => q.id === focusedQuestionId) ??
+                questions.find((q) => q.id !== revealedQuestionId) ??
+                questions[0];
+              handleSelectQuestion(question);
+              return;
+            }
+            showControls();
+            break;
           default:
             showControls();
             break;
@@ -288,7 +325,17 @@ export default function PlayerScreen() {
       RemoteControlManager.removeKeydownListener(listener);
       backHandler.remove();
     };
-  }, [seek, togglePausePlay, showControls, navigateBack]);
+  }, [
+    seek,
+    togglePausePlay,
+    showControls,
+    navigateBack,
+    focusedQuestionId,
+    directorResponse,
+    revealedQuestionId,
+    controlsVisible,
+    handleSelectQuestion,
+  ]);
 
   /**
    * Handle surface view creation
@@ -400,6 +447,7 @@ export default function PlayerScreen() {
               onSelectQuestion={handleSelectQuestion}
               revealedId={revealedQuestionId}
               playhead={currentTime}
+              onFocusedQuestionChange={setFocusedQuestionId}
             />
           )}
         </View>

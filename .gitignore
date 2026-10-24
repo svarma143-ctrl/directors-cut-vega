@@ -31,6 +31,9 @@ yarn-error.log
 agent/node_modules/
 agent/dist/
 
+# Yarn cache (orphaned install artifacts)
+app/.yarn/
+
 # Local staging directory used by tools/build-vega.sh when the project path
 # contains a space (the Vega build toolchain does not quote paths).
 .vega-build/

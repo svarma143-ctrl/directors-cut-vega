@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
+import { SpatialNavigationFocusableView } from 'react-tv-space-navigation';
 
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -98,39 +98,54 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
           {questions.map((question, index) => {
             const revealed = revealedId === question.id;
             return (
-              <TouchableOpacity
+              <SpatialNavigationFocusableView
                 key={question.id}
-                style={[styles.questionCard, revealed && styles.questionCardRevealed]}
-                onPress={() => onSelectQuestion(question)}
-                accessibilityRole="button"
-                accessibilityLabel={question.question}
-                hasTVPreferredFocus={index === 0}
-                testID={`director-question-${index}`}>
-                <Text style={styles.questionText}>{question.question}</Text>
+                onSelect={() => onSelectQuestion(question)}
+                viewProps={{
+                  accessible: true,
+                  accessibilityRole: 'button',
+                  accessibilityLabel: question.question,
+                  testID: `director-question-${index}`,
+                }}
+                style={[
+                  styles.questionCard,
+                  revealed && styles.questionCardRevealed,
+                ]}>
+                {({ isFocused }) => (
+                  <View
+                    style={[
+                      styles.questionInner,
+                      isFocused && styles.questionInnerFocused,
+                    ]}>
+                    <Text style={styles.questionText}>{question.question}</Text>
 
-                {revealed && question.options.length > 0 && (
-                  <View style={styles.optionsBlock}>
-                    {question.options.map((option, optionIndex) => {
-                      const isCorrect = optionIndex === question.correctIndex;
-                      return (
-                        <Text
-                          key={option}
-                          style={[
-                            styles.optionText,
-                            isCorrect && styles.optionCorrect,
-                          ]}>
-                          {String.fromCharCode(65 + optionIndex)}. {option}
-                          {isCorrect ? '  ✓' : ''}
-                        </Text>
-                      );
-                    })}
+                    {revealed && question.options.length > 0 && (
+                      <View style={styles.optionsBlock}>
+                        {question.options.map((option, optionIndex) => {
+                          const isCorrect = optionIndex === question.correctIndex;
+                          return (
+                            <Text
+                              key={option}
+                              style={[
+                                styles.optionText,
+                                isCorrect && styles.optionCorrect,
+                              ]}>
+                              {String.fromCharCode(65 + optionIndex)}. {option}
+                              {isCorrect ? '  ✓' : ''}
+                            </Text>
+                          );
+                        })}
+                      </View>
+                    )}
+
+                    {revealed && question.explanation && (
+                      <Text style={styles.explanation}>
+                        {question.explanation}
+                      </Text>
+                    )}
                   </View>
                 )}
-
-                {revealed && question.explanation && (
-                  <Text style={styles.explanation}>{question.explanation}</Text>
-                )}
-              </TouchableOpacity>
+              </SpatialNavigationFocusableView>
             );
           })}
         </View>
@@ -258,6 +273,16 @@ const styles = StyleSheet.create({
     marginBottom: scaledPixels(14),
   },
   questionCardRevealed: {
+    borderColor: colors.focusBorder,
+  },
+  // The focus ring is drawn by the inner view, because the focusable wrapper
+  // owns the layout and we want the highlight to hug the card's content.
+  questionInner: {
+    borderRadius: scaledPixels(12),
+    borderWidth: scaledPixels(3),
+    borderColor: 'transparent',
+  },
+  questionInnerFocused: {
     borderColor: colors.focusBorder,
   },
   questionText: {
