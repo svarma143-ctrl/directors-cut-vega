@@ -5,6 +5,8 @@ Watch a movie with a panel of AI movie-critic friends: Director's Cut streams **
 
 Built for the **Fire TV Vega hackathon** — developed entirely against the **Vega Virtual Device (VVD)**.
 
+![Director's Cut](docs/demo-title.jpg)
+
 ---
 
 ## How it works
@@ -33,6 +35,17 @@ Built for the **Fire TV Vega hackathon** — developed entirely against the **Ve
 Vega OS blocks cleartext `http://` **for the native media pipeline** (MPB) — and `file://` on the VVD as well — returning a bare `MEDIA_ERR_SRC_NOT_SUPPORTED` with an empty message. Ordinary app-JS `fetch` is *not* subject to that policy, which keeps the MSE path open. This platform behavior is fully chronicled (with evidence) in [`FRICTION_LOG.md`](FRICTION_LOG.md) entries #18–#20.
 
 > **Branches**: `main` is this RN 0.72 + MSE app (the hackathon submission). The `monorepo` branch contains the earlier monorepo codebase of the same project (Vega TypeScript app, agent + docs included) — kept for history.
+
+## See it running
+
+Stills from the demo reel — the AI panel turns the film's own lines into a live quiz while you watch:
+
+| | |
+| :---: | :---: |
+| ![The AI panel quizzing while the film plays](docs/app-quiz.jpg) | ![A line answered — it drops to dimmed/answered state while new ones queue](docs/app-answered.jpg) |
+| *Question built from the film's recent line, in-flight* | *One answered (dimmed); the queue refreshes behind the playhead* |
+| ![Next question set right after the film moves on](docs/app-new-questions.jpg) | |
+| *Fresh quiz set right after the playhead moves on — no spoilers from what you haven't watched* | |
 
 ## Repo layout
 ```
