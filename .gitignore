@@ -9,5 +9,7 @@ dist
 build
 node_modules
 engine.log
+# local runtime copy of the optional full movie (fetch per engine/media/README.md)
+engine/media/bbb_fmp4_full.mp4
 CMakeUserPresets.json
 npm-debug.log
