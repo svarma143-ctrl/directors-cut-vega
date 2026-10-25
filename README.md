@@ -103,7 +103,7 @@ See [`engine/media/README.md`](engine/media/README.md) — one archive.org fetch
 
 ## Submission notes
 
-- [`FRICTION_LOG.md`](FRICTION_LOG.md) — every wall the tools/pipeline gave us (SDK ANRs, blocked media schemes, w3cmedia quirks, blob-URL landmines, SSE browser-day friction) and what we'd suggest Amazon fix. Bonus-track fodder written as encountered, not reconstructed.
+- [`FRICTION_LOG.md`](FRICTION_LOG.md) — every wall the tools/pipeline gave us (SDK ANRs, blocked media schemes, w3cmedia quirks, blob-URL landmines, SSE browser-day friction) and what we'd suggest Amazon fix. Bonus-track fodder written as encountered, not reconstructed. A [trag.dev](https://trag.dev/context/friction-log/)-structured companion view of the same evidence (BLUF/persona/friction-points/recommendations) lives in [`FRICTION_LOG_TRAG.md`](FRICTION_LOG_TRAG.md).
 - Everything was built and demoed on the **Vega Virtual Device**, per the hackathon's VVD guidance.
 
 ## License
